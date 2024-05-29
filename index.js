@@ -14,8 +14,8 @@ const port = process.env.PORT || 8001;
 app.use(express.json());
 
 //DB config
-const { Pool } = pg;
-const pool = new Pool({
+const { Client } = pg;
+const client = new Client({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_DATABASE,
@@ -23,7 +23,7 @@ const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
-pool.connect((err, client, release) => {
+client.connect((err) => {
   if (err) {
     return console.error('Error acquiring client', err.stack);
   }
