@@ -14,13 +14,16 @@ const port = process.env.PORT || 8001;
 app.use(express.json());
 
 //DB config
-const { Client } = pg;
-const client = new Client({
+const { Pool } = pg;
+const client = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_DATABASE,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
+  ssl: {
+    rejectUnauthorized: false
+}
 });
 
 client.connect((err) => {
@@ -41,3 +44,5 @@ app.get('/', (req, res) => res.status(200).send(
 app.listen(port, () => {
   console.log(`listening on Port:${port}`);
 });
+
+export { Pool, app };
