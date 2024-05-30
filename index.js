@@ -25,7 +25,7 @@ const client = new Pool({
   port: process.env.DB_PORT,
   ssl: {
     rejectUnauthorized: false
-}
+  }
 });
 
 client.connect((err) => {
@@ -36,11 +36,7 @@ client.connect((err) => {
 });
 
 //API Endpoint
-app.get('/', (req, res) => res.status(200).send(
-    {
-        message: `Hey! Woriking good! Listening on Port:${port}`
-    }
-));
+app.get('/ping', (req, res) => res.status(200).send({ message: `Hey! Woriking good! Listening on Port:${port}` }));
 
 //API Endpoint to identify the user
 app.post('/identify', (req, res) => {
@@ -49,9 +45,7 @@ app.post('/identify', (req, res) => {
 
 
 // listeners
-app.listen(port, () => {
-  console.log(`listening on Port:${port}`);
-});
+app.listen(port, () => {console.log(`listening on Port:${port}`);});
 
 
 export { client, app };

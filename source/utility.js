@@ -6,12 +6,22 @@ function validateRequest(body) {
         throw new Error('Email and phone number are both missing.');
     }
 
-    if (body.email && !emailRegex.test(body.email)) {
-        throw new Error('Invalid email format.');
+    if (body.email) {
+        if (typeof body.email !== 'string') {
+            throw new Error('Email must be a string.');
+        }
+        if (!emailRegex.test(body.email)) {
+            throw new Error('Invalid email format.');
+        }
     }
 
-    if (body.phoneNumber && !phoneRegex.test(body.phoneNumber)) {
-        throw new Error('Invalid phone number format.');
+    if (body.phoneNumber) {
+        if (typeof body.phoneNumber !== 'number') {
+            throw new Error('Phone number must be an integer.');
+        }
+        if (!phoneRegex.test(body.phoneNumber)) {
+            throw new Error('Phone number must be an integer of 6 digits');
+        }
     }
 
     return true;
