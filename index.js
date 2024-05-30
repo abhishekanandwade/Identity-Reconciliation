@@ -2,6 +2,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import pg from 'pg';
+import { identifyUser } from './source/handler.js';
+
 
 // load environment variables from .env file
 dotenv.config();
@@ -40,9 +42,16 @@ app.get('/', (req, res) => res.status(200).send(
     }
 ));
 
+//API Endpoint to identify the user
+app.post('/identify', (req, res) => {
+  identifyUser(req.body, res);
+});
+
+
 // listeners
 app.listen(port, () => {
   console.log(`listening on Port:${port}`);
 });
 
-export { Pool, app };
+
+export { client, app };
