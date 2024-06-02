@@ -51,7 +51,28 @@ async function userQueryExec(body) {
             console.log('Primary entry!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', primaryContactsResult.rows);
         }
 
-        
+
+        const selectAllContacts = `SELECT A.*
+            FROM Contact A
+            WHERE A.linked_id IN (
+                SELECT linked_id
+                FROM Contact
+                WHERE ${body.phoneNumber ? 'phone_number' : 'email'} = $1
+            ) OR A.id IN (
+                SELECT linked_id
+                FROM Contact
+                WHERE ${body.phoneNumber ? 'phone_number' : 'email'} = $1
+            );`;
+        if (body.phoneNumber) {
+            const selectAllContactsResult = await client.query(selectAllContacts, [body.phoneNumber]);
+            console.log('Select all entries99999999999', selectAllContactsResult.rows);
+        } else {
+            const selectAllContactsResult = await client.query(selectAllContacts, [body.email]);
+            console.log('Select all entries99999999999', selectAllContactsResult.rows);
+        }
+
+
+
 
         console.log('here to continue@@@@@@@@@@@@@@@@@@@@@@@@@')
 
