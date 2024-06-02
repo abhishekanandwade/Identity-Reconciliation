@@ -27,9 +27,11 @@ async function userQueryExec(body) {
 
             try {
                 const secondaryContactQuery = `
-                    INSERT INTO contact (phone_number, email, link_precedence, linked_id ,created_at, updated_at)
-                    VALUES ($1, $2, $3::link_precedence, $4::integer, $5::TIMESTAMPTZ, $6::TIMESTAMPTZ)
-                    RETURNING *`;
+                INSERT INTO contact (phone_number, email, link_precedence, linked_id ,created_at, updated_at)
+                VALUES ($1, $2, $3::link_precedence, $4::integer, $5::TIMESTAMPTZ, $6::TIMESTAMPTZ)
+                ON CONFLICT (phone_number, email)
+                DO NOTHING
+                RETURNING *`;
 
                 const secondaryContactResult = await client.query(secondaryContactQuery, [body.phoneNumber, body.email, 'secondary', linkedId, new Date().toISOString(), new Date().toISOString()]);
 
