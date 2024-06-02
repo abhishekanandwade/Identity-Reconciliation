@@ -1,10 +1,12 @@
+CREATE TYPE link_precedence AS ENUM ('secondary', 'primary');
+
 CREATE TABLE Contact (
-    id INT PRIMARY KEY,
-    phoneNumber VARCHAR(255),
+    id SERIAL PRIMARY KEY NOT NULL,
+    phone_number VARCHAR(255),
     email VARCHAR(255),
-    linkedId INT,
-    linkPrecedence ENUM('secondary', 'primary'),
-    createdAt TIMESTAMP,
-    updatedAt TIMESTAMP,
-    deletedAt TIMESTAMP NULL
+    linked_id INT,
+    link_Precedence link_precedence NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    deleted_at TIMESTAMP
 );

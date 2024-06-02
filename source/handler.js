@@ -16,7 +16,7 @@ function identifyUser(body, res) {
     }
 
     // identify the user
-    userQueryExec();
+    userQueryExec(body);
     res.status(200).send({
         message: 'User identified successfully.'
     });

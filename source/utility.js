@@ -16,11 +16,11 @@ function validateRequest(body) {
     }
 
     if (body.phoneNumber) {
-        if (typeof body.phoneNumber !== 'number') {
-            throw new Error('Phone number must be an integer.');
+        if (typeof body.phoneNumber !== 'string') {
+            throw new Error('Phone number must be a string.');
         }
         if (!phoneRegex.test(body.phoneNumber)) {
-            throw new Error('Phone number must be an integer of 6 digits');
+            throw new Error('Phone number must be a string of 6 digits');
         }
     }
 
