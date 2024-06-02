@@ -23,31 +23,45 @@ async function userQueryExec(body) {
     try {
         await client.query('BEGIN');
 
-        const primaryContactQuery = 'SELECT * FROM contact WHERE (email = $1 OR phone_number = $2)';
-        const primaryContactResult = await client.query(primaryContactQuery, [body.email, body.phoneNumber]);
+        const selectContactQuery = 'SELECT * FROM contact WHERE (email = $1 OR phone_number = $2)';
+        const selectContactResult = await client.query(selectContactQuery, [body.email, body.phoneNumber]);
 
-        console.log('Select all entries---------', primaryContactResult.rows);
+        console.log('Select all entries---------', selectContactResult.rows);
 
-        if (primaryContactResult.rows.length > 0) {
-            const primaryContactQuery = `
-                WITH params AS (
-                    SELECT
-                        $1 AS phone_number,
-                        $2 AS email,
-                        $3::link_precedence AS link_precedence,
-                        $4::TIMESTAMPTZ AS created_at,
-                        $5::TIMESTAMPTZ AS updated_at
-                )
-                INSERT INTO contact (phone_number, email, link_precedence, created_at, updated_at)
-                SELECT phone_number, email, link_precedence, created_at, updated_at FROM params
-                WHERE NOT EXISTS (
-                    SELECT 1 FROM contact WHERE phone_number = (SELECT phone_number FROM params) AND email = (SELECT email FROM params)
-                )
-                RETURNING *`;
+        if (selectContactResult.rows.length > 0) {
 
-            const primaryContactResult = await client.query(primaryContactQuery, [body.phoneNumber, body.email, 'secondary', new Date().toISOString(), new Date().toISOString()]);
+            let primaryContact = selectContactResult.rows.filter(contact => contact.link_precedence === 'primary');
+            if (primaryContact.length === 0) {
+                primaryContact = selectContactResult.rows.filter(contact => contact.link_precedence === 'secondary' && contact.linked_id != null);
+            }
+            console.log('Primary Contact---------', primaryContact);
+            const linkedId = primaryContact[0].id;
 
-            console.log('secondary entry---------', primaryContactResult.rows);
+            const secondaryContactQuery = `
+    WITH params AS (
+        SELECT
+            $1 AS phone_number,
+            $2 AS email,
+            $3::link_precedence AS link_precedence,
+            $4::integer AS linked_id,
+            $5::TIMESTAMPTZ AS created_at,
+            $6::TIMESTAMPTZ AS updated_at
+    )
+    INSERT INTO contact (phone_number, email, link_precedence, linked_id ,created_at, updated_at)
+    SELECT phone_number, email, link_precedence, linked_id, created_at, updated_at FROM params
+    WHERE NOT EXISTS (
+        SELECT 1 FROM contact WHERE phone_number = (SELECT phone_number FROM params) AND email = (SELECT email FROM params)
+    )
+    RETURNING *`;
+
+            const secondaryContactResult = await client.query(secondaryContactQuery, [body.phoneNumber, body.email, 'secondary', linkedId, new Date().toISOString(), new Date().toISOString()]);
+
+            console.log('secondary entry---------', secondaryContactResult.rows);
+        } else {
+            const primaryContactsQuery = 'Insert into contact (phone_number, email, link_precedence, created_at, updated_at) VALUES($1, $2, $3, $4, $5) RETURNING *';
+            const primaryContactsResult = await client.query(primaryContactsQuery, [body.phoneNumber, body.email, 'primary', new Date().toISOString(), new Date().toISOString()]);
+
+            console.log('Primary entry!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', primaryContactsResult.rows);
         }
 
         // if (primaryContactResult.rows.length > 0) {
