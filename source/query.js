@@ -1,4 +1,5 @@
 import { client } from "../index.js";
+import { constructResult } from "./utility.js";
 
 
 
@@ -53,28 +54,35 @@ async function userQueryExec(body) {
 
 
         const selectAllContacts = `SELECT A.*
-            FROM Contact A
-            WHERE A.linked_id IN (
-                SELECT linked_id
-                FROM Contact
-                WHERE ${body.phoneNumber ? 'phone_number' : 'email'} = $1
-            ) OR A.id IN (
-                SELECT linked_id
-                FROM Contact
-                WHERE ${body.phoneNumber ? 'phone_number' : 'email'} = $1
-            );`;
+        FROM Contact A
+        WHERE A.linked_id IN (
+            SELECT linked_id
+            FROM Contact
+            WHERE ${body.phoneNumber ? 'phone_number' : 'email'} = $1 AND linked_id IS NOT NULL
+        ) OR A.id IN (
+            SELECT linked_id
+            FROM Contact
+            WHERE ${body.phoneNumber ? 'phone_number' : 'email'} = $1 AND linked_id IS NOT NULL
+        ) OR A.id IN (
+            SELECT id
+            FROM Contact
+            WHERE ${body.phoneNumber ? 'phone_number' : 'email'} = $1
+        );`;
+
+        let selectAllContactsResult
         if (body.phoneNumber) {
-            const selectAllContactsResult = await client.query(selectAllContacts, [body.phoneNumber]);
-            console.log('Select all entries99999999999', selectAllContactsResult.rows);
+            selectAllContactsResult = await client.query(selectAllContacts, [body.phoneNumber]);
+
         } else {
-            const selectAllContactsResult = await client.query(selectAllContacts, [body.email]);
-            console.log('Select all entries99999999999', selectAllContactsResult.rows);
+            selectAllContactsResult = await client.query(selectAllContacts, [body.email]);
         }
-
-
-
+        console.log('Select all entries99999999999', selectAllContactsResult.rows);
 
         console.log('here to continue@@@@@@@@@@@@@@@@@@@@@@@@@')
+
+
+        const finalResult = constructResult(selectAllContactsResult.rows);
+        console.log(finalResult, 'finalllllFFFFFFFFFFFFFFFFFFFFFFF')
 
         // if (primaryContactResult.rows.length > 0) {
         //   const primaryContact = primaryContactResult.rows[0];
