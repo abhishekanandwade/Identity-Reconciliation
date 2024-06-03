@@ -51,10 +51,17 @@ async function userQueryExec(body) {
                 }
             }else{
                 console.log('Dual Primary Contact222222222222222222222222222222222222222');
-                const primaryPhoneNumberId
-                const updatePrimary = 'Insert into contact (phone_number, email, link_precedence, created_at, updated_at) VALUES($1, $2, $3, $4, $5) RETURNING *';
-                const updatePrimaryResult = await client.query(primaryContactsQuery, [body.phoneNumber, body.email, 'primary', new Date().toISOString(), new Date().toISOString()]);
+                let primaryPhoneNumberId = primaryContact.filter(contact => contact.phone_number == body.phoneNumber); 
+                let primaryEmailId = primaryContact.filter(contact => contact.email == body.email);
+                console.log('Primary Phone Number ID', primaryPhoneNumberId);
+                console.log('Primary Email ID', primaryEmailId);
+                let emailIdPrimary = primaryEmailId[0].id;
+                let phoneIdPrimary = primaryPhoneNumberId[0].id;
+                const updatePrimary = 'UPDATE contact SET linked_id = $1, link_precedence = $2, updated_at = $3 WHERE id = $4';
+                const updatePrimaryResult = await client.query(updatePrimary, [emailIdPrimary,'secondary', new Date().toISOString(), phoneIdPrimary]);
 
+                const updateSecondary = 'UPDATE contact SET linked_id = $1, updated_at = $2 WHERE linked_id = $3';
+                const updateSecondaryResult = await client.query(updateSecondary, [emailIdPrimary, new Date().toISOString(), phoneIdPrimary]);
 
             }
         } else {
