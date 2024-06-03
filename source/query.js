@@ -4,6 +4,7 @@ import { constructResult } from "./utility.js";
 
 
 async function userQueryExec(body) {
+    let finalResult
     console.log('User Query Execution##############', body);
 
     try {
@@ -100,44 +101,8 @@ async function userQueryExec(body) {
         console.log('here to continue@@@@@@@@@@@@@@@@@@@@@@@@@')
 
 
-        const finalResult = constructResult(selectAllContactsResult.rows);
+        finalResult = constructResult(selectAllContactsResult.rows);
         console.log(finalResult, 'finalllllFFFFFFFFFFFFFFFFFFFFFFF')
-
-        // if (primaryContactResult.rows.length > 0) {
-        //   const primaryContact = primaryContactResult.rows[0];
-
-        //   const secondaryContactsQuery = 'SELECT * FROM contact WHERE linked_id = $1';
-        //   const secondaryContactsResult = await client.query(secondaryContactsQuery, [primaryContact.id]);
-
-        //   const secondaryContactIds = secondaryContactsResult.rows.map(contact => contact.id);
-
-        //   const response = {
-        //     contact: {
-        //       primaryContatctId: primaryContact.id,
-        //       emails: [primaryContact.email],
-        //       phoneNumbers: [primaryContact.phone_number],
-        //       secondaryContactIds: secondaryContactIds,
-        //     },
-        //   };
-
-        //   res.status(200).json(response);
-        // } else {
-        //   const insertContactQuery = 'INSERT INTO contact (phone_number, email, link_precedence, created_at) VALUES($1, $2, $3, $4) RETURNING *';
-        //   const insertContactResult = await client.query(insertContactQuery, [phoneNumber, email, 'primary', new Date()]);
-
-        //   const newContact = insertContactResult.rows[0];
-
-        //   const response = {
-        //     contact: {
-        //       primaryContatctId: newContact.id,
-        //       emails: [newContact.email],
-        //       phoneNumbers: [newContact.phone_number],
-        //       secondaryContactIds: [],
-        //     },
-        //   };
-
-        //   res.status(200).json(response);
-        // }
 
         await client.query('COMMIT');
     } catch (error) {
@@ -147,7 +112,7 @@ async function userQueryExec(body) {
 
 
 
-
+    return finalResult;
 
 }
 

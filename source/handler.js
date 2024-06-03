@@ -16,11 +16,16 @@ function identifyUser(body, res) {
     }
 
     // identify the user
-    userQueryExec(body);
-    res.status(200).send({
-        message: 'User identified successfully.'
+    userQueryExec(body).then((result) => {
+        if (result && result.contact) {
+            res.status(200).send(result);
+        }
+    }).catch((error) => {
+        res.status(500).send({
+            error: error.message
+        });
     });
 }
 
 
-export { identifyUser, validateRequest}
+export { identifyUser, validateRequest }
