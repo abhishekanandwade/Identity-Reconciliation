@@ -46,7 +46,7 @@ function constructResult(contacts) {
             primaryContatctId: primaryContact.id,
             emails: [],
             phoneNumbers: [],
-            secondaryContactIds: secondaryContacts.map(contact => contact.id)
+            secondaryContactIds: []
         }
     };
 
@@ -58,9 +58,24 @@ function constructResult(contacts) {
         result.contact.phoneNumbers.push(primaryContact.phone_number);
     }
 
-    // Add secondary contacts' emails and phone numbers if they are not null
-    result.contact.emails.push(...secondaryContacts.map(contact => contact.email).filter(email => email));
-    result.contact.phoneNumbers.push(...secondaryContacts.map(contact => contact.phone_number).filter(phoneNumber => phoneNumber));
+    // Add secondary contacts' emails, phone numbers, and IDs if they are not null and not duplicates
+    secondaryContacts.forEach(contact => {
+        if (contact.email && !result.contact.emails.includes(contact.email)) {
+            result.contact.emails.push(contact.email);
+            result.contact.secondaryContactIds.push(contact.id);
+        }
+        if (contact.phone_number && !result.contact.phoneNumbers.includes(contact.phone_number)) {
+            result.contact.phoneNumbers.push(contact.phone_number);
+            if (!result.contact.secondaryContactIds.includes(contact.id)) {
+                result.contact.secondaryContactIds.push(contact.id);
+            }
+        }
+    });
+
+    // Remove duplicates by converting to a Set and then back to an array
+    result.contact.emails = [...new Set(result.contact.emails)];
+    result.contact.phoneNumbers = [...new Set(result.contact.phoneNumbers)];
+    result.contact.secondaryContactIds = [...new Set(result.contact.secondaryContactIds)];
 
     return result;
 }

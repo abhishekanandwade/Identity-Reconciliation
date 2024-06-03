@@ -16,34 +16,46 @@ async function userQueryExec(body) {
 
         if (selectContactResult.rows.length > 0) {
             let linkedId;
-
+            let dualPrimary = false;
             let primaryContact = selectContactResult.rows.filter(contact => contact.link_precedence === 'primary');
             if (primaryContact.length === 0) {
                 primaryContact = selectContactResult.rows.filter(contact => contact.link_precedence === 'secondary' && contact.linked_id != null);
                 linkedId = primaryContact[0].linked_id;
             } else {
+                if (primaryContact.length == 2){
+                    dualPrimary = true;
+                }
                 linkedId = primaryContact[0].id;
             }
             console.log('Primary Contact---------', primaryContact, linkedId);
+            if (dualPrimary==false){
 
-            try {
-                const secondaryContactQuery = `
-                INSERT INTO contact (phone_number, email, link_precedence, linked_id ,created_at, updated_at)
-                VALUES ($1, $2, $3::link_precedence, $4::integer, $5::TIMESTAMPTZ, $6::TIMESTAMPTZ)
-                ON CONFLICT (phone_number, email)
-                DO NOTHING
-                RETURNING *`;
-
-                const secondaryContactResult = await client.query(secondaryContactQuery, [body.phoneNumber, body.email, 'secondary', linkedId, new Date().toISOString(), new Date().toISOString()]);
-
-                console.log('secondary entry---------', secondaryContactResult.rows);
-            } catch (error) {
-                if (error.code === '23505' && (error.constraint === 'unique_phone_where_email_null' || error.constraint === 'unique_email_where_phone_null')) {
-                    // Ignore the error
-                } else {
-                    // Handle the error
-                    throw error;
+                try {
+                    const secondaryContactQuery = `
+                    INSERT INTO contact (phone_number, email, link_precedence, linked_id ,created_at, updated_at)
+                    VALUES ($1, $2, $3::link_precedence, $4::integer, $5::TIMESTAMPTZ, $6::TIMESTAMPTZ)
+                    ON CONFLICT (phone_number, email)
+                    DO NOTHING
+                    RETURNING *`;
+    
+                    const secondaryContactResult = await client.query(secondaryContactQuery, [body.phoneNumber, body.email, 'secondary', linkedId, new Date().toISOString(), new Date().toISOString()]);
+    
+                    console.log('secondary entry---------', secondaryContactResult.rows);
+                } catch (error) {
+                    if (error.code === '23505' && (error.constraint === 'unique_phone_where_email_null' || error.constraint === 'unique_email_where_phone_null')) {
+                        // Ignore the error
+                    } else {
+                        // Handle the error
+                        throw error;
+                    }
                 }
+            }else{
+                console.log('Dual Primary Contact222222222222222222222222222222222222222');
+                const primaryPhoneNumberId
+                const updatePrimary = 'Insert into contact (phone_number, email, link_precedence, created_at, updated_at) VALUES($1, $2, $3, $4, $5) RETURNING *';
+                const updatePrimaryResult = await client.query(primaryContactsQuery, [body.phoneNumber, body.email, 'primary', new Date().toISOString(), new Date().toISOString()]);
+
+
             }
         } else {
             const primaryContactsQuery = 'Insert into contact (phone_number, email, link_precedence, created_at, updated_at) VALUES($1, $2, $3, $4, $5) RETURNING *';
