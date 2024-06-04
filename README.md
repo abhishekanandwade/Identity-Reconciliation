@@ -23,6 +23,10 @@ This repository contains the implementation of a web service designed to reconci
 
 ## Endpoints
 
+### /ping
+
+**Method**: GET
+
 ### /identify
 
 **Method**: POST
