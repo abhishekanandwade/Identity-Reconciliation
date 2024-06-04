@@ -44,7 +44,8 @@ npm install
 ## Configure Database:
 
 - Set up a PostgreSQL database.
-- Update the database connection settings in config.js or .env file.
+- Update the database connection settings in .env file.
+- use the DDLs from ddl.sql to setup the database.
 
 
 ## Start the Server:

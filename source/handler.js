@@ -3,7 +3,6 @@ import { validateRequest } from "./utility.js";
 
 
 function identifyUser(body, res) {
-    console.log('Identify User Request##############', body);
 
     // validate the request
     try {
