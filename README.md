@@ -38,6 +38,12 @@ This repository contains the implementation of a web service designed to reconci
 }
 ```
 
+### /api-docs
+This is an Swagger UI endpoint for the API documentation.
+
+### /swagger-stats
+This is an endpoint for real-time API monitoring tool.
+
 
 ## Install Dependencies:
 
